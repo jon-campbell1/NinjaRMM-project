@@ -1,4 +1,4 @@
-const DOMAIN = 'http://localhost:3001';
+const DOMAIN = 'http://localhost:3000';
 const headers = {
   'Content-Type': 'application/json'
 };
