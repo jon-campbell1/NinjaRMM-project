@@ -20,4 +20,6 @@ You will also see any lint errors in the console.
 
 All the necessary api endpoints for this application are in `src/api-service/index.js`.
 
+To receive the data for this project, run the `device_serverApp` repo on port 3000.
+
 
