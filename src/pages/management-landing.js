@@ -19,21 +19,27 @@ export default function() {
     
     const [currentDevice, updateCurrentDevice] = useState({});
     const [filters, setFilters] = useState([]);
+    const [currentSort, setCurrentSort] = useState('');
     const [errors, updateErrors] = useState([]);
 
     useEffect(() => {
         if (!devicesLoaded) {
-            ApiService.getDevices()
-            .then(devices => {
-                updateDevices(devices);
-                updateAllDevices(devices);
-                updateDevicesLoaded(true);
-            })
-            .catch(() => {
-                updateDevicesLoaded(true);
-            });
+            getDevices();
         }
     }, devicesLoaded);
+
+
+    const getDevices = () => {
+        ApiService.getDevices()
+        .then(devices => {
+            updateDevices(devices);
+            updateAllDevices(devices);
+            updateDevicesLoaded(true);
+        })
+        .catch(() => {
+            updateDevicesLoaded(true);
+        });
+    }
 
     const editInventory = device => {
         updateCurrentDevice(device);
@@ -111,29 +117,27 @@ export default function() {
         clearModalForm();
     }
 
-    const filterDevices = filters => {
-        if (!filters.length) {
-            setFilters([]);
-            updateDevices(allDevices);
-            return;
+    const filterDevices = (filters, sort = '') => {
+        setFilters(filters);
+
+        let sortedDevices = allDevices;
+        const sortProp = sort || currentSort;
+        if (sortProp) {
+            sortedDevices = allDevices.sort((a, b) => (a[sortProp] > b[sortProp]) ? 1 : -1);
         }
 
-        setFilters(filters)
-        updateDevices(allDevices.filter(device => filters.map(filter => filter.value).includes(device.type)));
-        
+        if (!filters.length) {
+            setFilters([]);
+            updateDevices(sortedDevices);
+            return;
+        }
+        updateDevices(sortedDevices.filter(device => filters.map(filter => filter.value).includes(device.type)));
     }
 
     const sortDevices = e => {
         const val = e.target.value;
-
-        if (!val) {
-            updateDevices(allDevices);
-            return;
-        }
-
-        const sortedDevices = allDevices.sort((a, b) => (a[val] > b[val]) ? 1 : -1);
-        console.log(sortedDevices);
-        updateDevices([...sortedDevices]);
+        setCurrentSort(val);
+        filterDevices(filters, val);
     }
     
     const inventoryForm = 
@@ -221,7 +225,7 @@ export default function() {
                     Sort By:
                     <div>
                         <select onChange={sortDevices}>
-                            <option value=''>None</option>
+                            <option value=''>Choose an option</option>
                             <option value='system_name'>System Name</option>
                             <option value='type'>Type</option>
                             <option value='hdd_capacity'>HDD Capacity</option>
