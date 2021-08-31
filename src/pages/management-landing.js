@@ -11,8 +11,12 @@ export default function() {
     const [devices, updateDevices] = useState([]);
     const [allDevices, updateAllDevices] = useState([]);
     const [devicesLoaded, updateDevicesLoaded] = useState(false);
-    const [showAddModal, updateShowAddModal] = useState(false);
-    const [showDeleteModal, updateShowDeleteModal] = useState(false);
+
+    const [modals, updateModals] = useState({
+        showAddModal: false,
+        showDeleteModal: false
+    });
+    
     const [currentDevice, updateCurrentDevice] = useState({});
     const [filters, setFilters] = useState([]);
     const [errors, updateErrors] = useState([]);
@@ -33,12 +37,18 @@ export default function() {
 
     const editInventory = device => {
         updateCurrentDevice(device);
-        updateShowAddModal(true);
+        updateModals({
+            ...modals,
+            showAddModal: true
+        })
     }
 
     const openDeleteModal = device => {
         updateCurrentDevice(device);
-        updateShowDeleteModal(true);
+        updateModals({
+            ...modals,
+            showDeleteModal: true
+        })
     }
 
     const setCurrentDevice = e => {
@@ -47,8 +57,10 @@ export default function() {
     }
 
     const clearModalForm = () => {
-        updateShowAddModal(false); 
-        updateShowDeleteModal(false);
+        updateModals({
+            showAddModal: false,
+            showDeleteModal: false,
+        })
         updateCurrentDevice({});
         updateErrors([]);
     }
@@ -78,8 +90,8 @@ export default function() {
     const deleteDevice = () => {
         ApiService.deleteDevice(currentDevice).then(res => {
             const currentdevices = devices;
-            currentdevices.forEach((part, ind) => {
-                if (part.id ===  currentDevice.id) {
+            currentdevices.forEach((device, ind) => {
+                if (device.id ===  currentDevice.id) {
                     currentdevices.splice(ind, 1);
                 }
             });
@@ -90,8 +102,8 @@ export default function() {
 
     const mapUpdateToDevice = () => {
         const currentdevices = devices;
-        currentdevices.forEach((part, ind) => {
-            if (part.id === currentDevice.id) {
+        currentdevices.forEach((device, ind) => {
+            if (device.id === currentDevice.id) {
                 currentdevices[ind] = currentDevice;
             }
         });
@@ -168,7 +180,7 @@ export default function() {
         <div className='devices-list'>
 
             {
-                showAddModal && 
+                modals.showAddModal && 
                 <Modal 
                     onClose={clearModalForm}
                     onSave={() => { saveDevice() }}
@@ -179,7 +191,7 @@ export default function() {
             }
 
             {
-                showDeleteModal && 
+                modals.showDeleteModal && 
                 <Modal 
                     onClose={clearModalForm}
                     onSave={() => { deleteDevice() }}
@@ -189,7 +201,7 @@ export default function() {
 
 
             <h1>Device Management</h1>
-            <button className='add-btn' onClick={() => {updateShowAddModal(true)}}>Add Device</button>
+            <button className='add-btn' onClick={() => {updateModals({...modals, showDeleteModal: true})}}>Add Device</button>
             <div className='filter-container'>
                 <div className='filter'>
                     Device Type:
