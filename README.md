@@ -16,4 +16,4 @@ You will also see any lint errors in the console.
 
 ### `IMPORTANT`
 
-You may need to change the port for the backend repo device-serverApp to 3001 (or any port of your choosing)
+You may need to change the port for the backend server (device-serverApp) to a different port other that 3000
