@@ -4,6 +4,10 @@
 
 In the project directory, you can run:
 
+### `npm install`
+
+To install all dependencies for this project. You must run this before running npm install.
+
 ### `npm start`
 
 Runs the app in the development mode.\
