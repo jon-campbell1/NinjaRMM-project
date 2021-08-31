@@ -6,7 +6,7 @@ In the project directory, you can run:
 
 ### `npm install`
 
-To install all dependencies for this project. You must run this before running npm start.
+To install all dependencies for this project. You must run this before running `npm start`.
 
 ### `npm start`
 
@@ -22,6 +22,6 @@ You may need to change the port for the backend server (device-serverApp) to a d
 
 ### `API ENDPOINTS`
 
-All the necessary api endpoints for this application are in src/api-service/index.js
+All the necessary api endpoints for this application are in `src/api-service/index.js`.
 
 
