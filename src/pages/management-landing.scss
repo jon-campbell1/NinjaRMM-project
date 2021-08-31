@@ -3,12 +3,18 @@
 }
 
 .multi-select {
+    z-index: 1;
     width: 400px;
     margin: 8px 0 10px 0;
 }
 
 .filter-container {
+    margin-bottom: 10px;
     display: flex;
+
+    @media(max-width: 840px) {
+        flex-direction: column;
+    }
 
     .filter {
         margin-right: 10px;
