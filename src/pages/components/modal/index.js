@@ -1,7 +1,7 @@
 import React from 'react';
 import './modal.scss';
 
-export default function({
+const Modal = function({
     onClose,
     title,
     form,
@@ -27,3 +27,5 @@ export default function({
         </div>
     )
 }
+
+export default Modal;

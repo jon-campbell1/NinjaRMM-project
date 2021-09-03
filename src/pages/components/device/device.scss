@@ -21,8 +21,13 @@
     .part-links {
         margin-top: 5px;
         font-size: 12px;
-        a {
+        button {
+            background: none; 
+            border: 0;
+            padding: 0;
+            margin: 0;
             color: #2949ff;
+            width: auto;
             text-decoration: underline;
         }
     }

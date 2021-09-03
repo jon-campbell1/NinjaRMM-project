@@ -6,7 +6,7 @@ import './management-landing.scss';
 
 import ApiService from '../api-service';
 
-export default function() {
+const ManagementLanding = function() {
 
     const [devices, updateDevices] = useState([]);
     const [allDevices, updateAllDevices] = useState([]);
@@ -26,7 +26,7 @@ export default function() {
         if (!devicesLoaded) {
             getDevices();
         }
-    }, devicesLoaded);
+    }, [devicesLoaded]);
 
 
     const getDevices = () => {
@@ -74,8 +74,14 @@ export default function() {
     const saveDevice = () => {
         const errors = [];
         ['Type', 'System Name', 'HDD Capacity'].forEach(property => {
-            if (!currentDevice[property.toLowerCase().replace(/ /g, '_')]) {
-                errors.push(`${property} is required.`)
+            const deviceProperty = currentDevice[property.toLowerCase().replace(/ /g, '_')];
+            if (!deviceProperty) {
+                errors.push(`${property} is required.`);
+            }
+            if (property === 'HDD Capacity') {
+                if (deviceProperty <= 0) {
+                    errors.push(`${property} must be greater than 0.`);
+                }
             }
         })
         if (errors.length) {
@@ -85,13 +91,28 @@ export default function() {
         const route = !currentDevice.id ? 'create' : 'update';
         ApiService[`${route}Device`](currentDevice).then(res => {
             if (!currentDevice.id) {
-                updateDevices([...devices, res]);
+                updateDevices((currentDevices) => {
+                    let newDevices = [...currentDevices, res];
+                    if (currentSort) {
+                        newDevices = getSortedDevices(newDevices);
+                    }
+                    return newDevices;
+                });
                 clearModalForm();
                 return;
             }
             mapUpdateToDevice();
         });
     }
+
+    const getSortedDevices = (devices) => 
+        devices.sort((a, b) => {
+            const aValue = currentSort === 'hdd_capacity' ? Number(a[currentSort]) : a[currentSort];
+            const bValue = currentSort === 'hdd_capacity' ? Number(b[currentSort]) : b[currentSort];
+
+            return (aValue > bValue) ? 1 : -1;
+        });
+    
 
     const deleteDevice = () => {
         ApiService.deleteDevice(currentDevice).then(res => {
@@ -113,7 +134,13 @@ export default function() {
                 currentdevices[ind] = currentDevice;
             }
         });
-        updateDevices(currentdevices);
+        updateDevices((currentDevices) => {
+            let newDevices = currentDevices;
+            if (currentSort) {
+                newDevices = getSortedDevices(newDevices);
+            }
+            return newDevices;
+        });
         clearModalForm();
     }
 
@@ -123,7 +150,14 @@ export default function() {
         let sortedDevices = allDevices;
         const sortProp = sort || currentSort;
         if (sortProp) {
-            sortedDevices = allDevices.sort((a, b) => (a[sortProp] > b[sortProp]) ? 1 : -1);
+            sortedDevices = allDevices.sort((a, b) => {
+
+                const aValue = sortProp === 'hdd_capacity' ? Number(a[sortProp]) : a[sortProp];
+                const bValue = sortProp === 'hdd_capacity' ? Number(b[sortProp]) : b[sortProp];
+
+                return (aValue > bValue) ? 1 : -1;
+            }
+            );
         }
 
         if (!filters.length) {
@@ -147,12 +181,11 @@ export default function() {
                 type='text'  
                 placeholder='Name' 
                 id='system_name' 
-                value={currentDevice.system_name} 
                 onChange={setCurrentDevice}
                 />
             </div>
             <div className='input-container'>
-              <select value={currentDevice.type} id='type' onChange={setCurrentDevice}>
+              <select id='type' onChange={setCurrentDevice}>
                   <option value=''>Type</option>
                   <option value='WINDOWS_WORKSTATION'>Windows WorkStation</option>
                   <option value='MAC'>Mac</option>
@@ -165,15 +198,15 @@ export default function() {
                 placeholder='HDD Capacity (GB)' 
                 step='.01' 
                 id='hdd_capacity' 
-                value={currentDevice.hdd_capacity} 
                 onChange={setCurrentDevice}
                 />
             </div>
         </>
 
     const renderDevices = () =>
-        devices.map(device => 
+        devices.map((device) => 
             <Device
+                key={`device-${device.id}`}
                 deviceDetails={device}
                 editAction={() => { editInventory(device) }}
                 deleteAction={() => { openDeleteModal(device) }}
@@ -205,7 +238,7 @@ export default function() {
 
 
             <h1>Device Management</h1>
-            <button className='add-btn' onClick={() => {updateModals({...modals, showDeleteModal: true})}}>Add Device</button>
+            <button className='add-btn' onClick={() => {updateModals({...modals, showAddModal: true})}}>Add Device</button>
             <div className='filter-container'>
                 <div className='filter'>
                     Device Type:
@@ -238,3 +271,5 @@ export default function() {
     )
 
 }
+
+export default ManagementLanding;

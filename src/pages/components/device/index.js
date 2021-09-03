@@ -2,7 +2,7 @@ import React from 'react';
 import { formatDeviceType } from '../../helpers';
 import './device.scss';
 
-export default function ({ 
+const Device = function ({ 
     deviceDetails,  
     deleteAction,
     editAction,
@@ -16,9 +16,11 @@ export default function ({
                 <div className='part-price'>{formatDeviceType(type)}</div>
                 <div className='part-description'>{hdd_capacity || 0} GB</div>
                 <div className='part-links'>
-                    <a href='#' onClick={editAction}>Edit</a> - <a href='#' onClick={deleteAction}>Delete</a>
+                    <button onClick={editAction}>Edit</button> - <button onClick={deleteAction}>Delete</button>
                 </div>
             </div>
          </div>
     );
 }
+
+export default Device;

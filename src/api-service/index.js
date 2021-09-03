@@ -3,7 +3,7 @@ const headers = {
   'Content-Type': 'application/json'
 };
 
-export default {
+const endpoints = {
     getDevices: () => fetch(`${DOMAIN}/devices`).then(res => res.json()),
 
     createDevice: data => fetch(`${DOMAIN}/devices`, {
@@ -26,3 +26,5 @@ export default {
     })
     .then(res => res.json())
 }
+
+export default endpoints;
