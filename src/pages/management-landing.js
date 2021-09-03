@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { MultiSelect } from "react-multi-select-component";
 import Modal from './components/modal';
 import Device from './components/device';
@@ -22,6 +22,10 @@ const ManagementLanding = function() {
     const [currentSort, setCurrentSort] = useState('');
     const [errors, updateErrors] = useState([]);
 
+    const systemNameRef = useRef(null);
+    const typeRef = useRef(null);
+    const capacityRef = useRef(null);
+
     useEffect(() => {
         if (!devicesLoaded) {
             getDevices();
@@ -41,12 +45,26 @@ const ManagementLanding = function() {
         });
     }
 
+    const showAddDeivceModal = () => {
+        updateModals({...modals, showAddModal: true});
+        setTimeout(() => {
+            systemNameRef.current.value = '';
+            typeRef.current.value = '';
+            capacityRef.current.value = '';
+        }, 1);
+    }
+
     const editInventory = device => {
         updateCurrentDevice(device);
         updateModals({
             ...modals,
             showAddModal: true
-        })
+        });
+        setTimeout(() => {
+            systemNameRef.current.value = device.system_name;
+            typeRef.current.value = device.type;
+            capacityRef.current.value = device.hdd_capacity;
+        }, 1);
     }
 
     const openDeleteModal = device => {
@@ -178,6 +196,7 @@ const ManagementLanding = function() {
         <>
             <div className='input-container'>
               <input 
+                ref={systemNameRef}
                 type='text'  
                 placeholder='Name' 
                 id='system_name' 
@@ -185,7 +204,7 @@ const ManagementLanding = function() {
                 />
             </div>
             <div className='input-container'>
-              <select id='type' onChange={setCurrentDevice}>
+              <select id='type' onChange={setCurrentDevice} ref={typeRef}>
                   <option value=''>Type</option>
                   <option value='WINDOWS_WORKSTATION'>Windows WorkStation</option>
                   <option value='MAC'>Mac</option>
@@ -194,6 +213,7 @@ const ManagementLanding = function() {
             </div>
             <div className='input-container'>
               <input 
+                ref={capacityRef}
                 type='number' 
                 placeholder='HDD Capacity (GB)' 
                 step='.01' 
@@ -238,7 +258,7 @@ const ManagementLanding = function() {
 
 
             <h1>Device Management</h1>
-            <button className='add-btn' onClick={() => {updateModals({...modals, showAddModal: true})}}>Add Device</button>
+            <button className='add-btn' onClick={() => { showAddDeivceModal() }}>Add Device</button>
             <div className='filter-container'>
                 <div className='filter'>
                     Device Type:
