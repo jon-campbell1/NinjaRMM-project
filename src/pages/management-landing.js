@@ -109,12 +109,10 @@ const ManagementLanding = function() {
         const route = !currentDevice.id ? 'create' : 'update';
         ApiService[`${route}Device`](currentDevice).then(res => {
             if (!currentDevice.id) {
+                updateAllDevices([...allDevices, res]);
                 updateDevices((currentDevices) => {
-                    let newDevices = [...currentDevices, res];
-                    if (currentSort) {
-                        newDevices = getSortedDevices(newDevices);
-                    }
-                    return newDevices;
+                    const newDevices = [...currentDevices, res];
+                    return getSortedDevices(newDevices);
                 });
                 clearModalForm();
                 return;
@@ -123,13 +121,23 @@ const ManagementLanding = function() {
         });
     }
 
-    const getSortedDevices = (devices) => 
-        devices.sort((a, b) => {
-            const aValue = currentSort === 'hdd_capacity' ? Number(a[currentSort]) : a[currentSort];
-            const bValue = currentSort === 'hdd_capacity' ? Number(b[currentSort]) : b[currentSort];
+    const getSortedDevices = (devices) =>  {
+        if (currentSort) {
+            devices = devices.sort((a, b) => {
+                const aValue = currentSort === 'hdd_capacity' ? Number(a[currentSort]) : a[currentSort];
+                const bValue = currentSort === 'hdd_capacity' ? Number(b[currentSort]) : b[currentSort];
+    
+                return (aValue > bValue) ? 1 : -1;
+            });
+        }
 
-            return (aValue > bValue) ? 1 : -1;
-        });
+        if (filters.length) {
+            devices = devices.filter(device => filters.map(filter => filter.value).includes(device.type));
+        }
+
+        return devices;
+    }
+        
     
 
     const deleteDevice = () => {
@@ -141,24 +149,26 @@ const ManagementLanding = function() {
                 }
             });
             updateDevices(currentdevices);
+
+            const newAllDevices = allDevices;
+            allDevices.forEach((device, ind) => {
+                if (device.id ===  currentDevice.id) {
+                    newAllDevices.splice(ind, 1);
+                }
+            });
+            updateAllDevices(newAllDevices);
             clearModalForm();
         });
     }
 
     const mapUpdateToDevice = () => {
-        const currentdevices = devices;
-        currentdevices.forEach((device, ind) => {
+        const currentDevices = devices;
+        currentDevices.forEach((device, ind) => {
             if (device.id === currentDevice.id) {
-                currentdevices[ind] = currentDevice;
+                currentDevices[ind] = currentDevice;
             }
         });
-        updateDevices((currentDevices) => {
-            let newDevices = currentDevices;
-            if (currentSort) {
-                newDevices = getSortedDevices(newDevices);
-            }
-            return newDevices;
-        });
+        updateDevices(getSortedDevices(currentDevices));
         clearModalForm();
     }
 
